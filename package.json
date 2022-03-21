@@ -1,0 +1,26 @@
+{
+  "name": "blockchain-part",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "gsn-with-ganache": "run-with-testrpc --networkId 1337 --chainId 1337 'gsn start'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finalprojectG34/blockchain-part.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/finalprojectG34/blockchain-part/issues"
+  },
+  "homepage": "https://github.com/finalprojectG34/blockchain-part#readme",
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^2.0.6",
+    "dotenv": "^16.0.0",
+    "truffle": "^5.5.10"
+  }
+}
