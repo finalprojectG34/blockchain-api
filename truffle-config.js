@@ -12,12 +12,21 @@ module.exports = {
      network_id: "*",       // Any network (default: none)
     },
     rinkeby: {
-      provider: () => new HDWalletProvider(MNEMONIC, `https://rinkeby.infura.io/v3/${API_KEY}`),
+      // provider: () => new HDWalletProvider(MNEMONIC, `https://rinkeby.infura.io/v3/${API_KEY}`),
+      provider: () => new HDWalletProvider(MNEMONIC, "https://speedy-nodes-nyc.moralis.io/0cfd86d7cc7a029dd95f5a57/eth/rinkeby"),
       network_id: 4,       // Ropsten's id
       // gas: 5500000,        // Ropsten has a lower block limit than mainnet
       // confirmations: 2,    // # of confs to wait between deployments. (default: 0)
       // timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       // skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
+    kovan: {
+      // provider: () => new HDWalletProvider(MNEMONIC, `https://rinkeby.infura.io/v3/${API_KEY}`),
+      provider: () => new HDWalletProvider(MNEMONIC, "https://speedy-nodes-nyc.moralis.io/0cfd86d7cc7a029dd95f5a57/eth/kovan"),
+      network_id: 42,
+      gas: 3716887,
+      skipDryRun: true,
+      networkCheckTimeout: 100000,
     },
   },
 

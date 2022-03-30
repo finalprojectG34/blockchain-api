@@ -19,8 +19,10 @@
   },
   "homepage": "https://github.com/finalprojectG34/blockchain-part#readme",
   "dependencies": {
-    "@truffle/hdwallet-provider": "^2.0.6",
+    "@opengsn/contracts": "^2.2.6",
+    "@opengsn/provider": "^2.2.6",
+    "@truffle/hdwallet-provider": "^1.7.0",
     "dotenv": "^16.0.0",
-    "truffle": "^5.5.10"
+    "truffle": "^5.1.67"
   }
 }
