@@ -28,6 +28,11 @@ module.exports = {
       skipDryRun: true,
       networkCheckTimeout: 100000,
     },
+    avalanche_fuji: {
+      provider: () => new HDWalletProvider(MNEMONIC, "https://speedy-nodes-nyc.moralis.io/0cfd86d7cc7a029dd95f5a57/avalanche/testnet"),
+      network_id: 43113,
+      skipDryRun: true,
+    },
   },
 
   // Set default mocha options here, use special reporters etc.

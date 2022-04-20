@@ -11,7 +11,7 @@ contract MyContract is BaseRelayRecipient {
         _setTrustedForwarder(_trustedForwarder);
     }
 
-    function set(uint val) public {
+    function setMyData(uint val) public {
         data += val;
     }
 
