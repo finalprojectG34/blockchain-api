@@ -1,28 +1,42 @@
 {
-  "name": "blockchain-part",
+  "name": "blockchain-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "start": "node dist/index.js",
+    "build": "babel src --out-dir dist",
+    "dev": "nodemon --exec npx babel-node src/index.js",
     "gsn-with-ganache": "run-with-testrpc --networkId 1337 --chainId 1337 'gsn start'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/finalprojectG34/blockchain-part.git"
+    "url": "git+https://github.com/finalprojectG34/blockchain-api.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nathnael Akale",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/finalprojectG34/blockchain-part/issues"
+    "url": "https://github.com/finalprojectG34/blockchain-api/issues"
   },
-  "homepage": "https://github.com/finalprojectG34/blockchain-part#readme",
+  "homepage": "https://github.com/finalprojectG34/blockchain-api#readme",
   "dependencies": {
-    "@opengsn/contracts": "^2.2.6",
+    "@biconomy/mexa": "^2.0.32",
     "@opengsn/provider": "^2.2.6",
-    "@truffle/hdwallet-provider": "^1.7.0",
+    "@opengsn/contracts": "^2.2.6",
+    "@truffle/hdwallet-provider": "^2.0.7",
     "dotenv": "^16.0.0",
-    "truffle": "^5.1.67"
+    "ganache-cli": "^6.12.2",
+    "ganache-core": "^2.13.2",
+    "moralis": "^1.5.9",
+    "truffle": "^5.1.67",
+    "web3": "^1.7.3"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "babel-preset-env": "^1.7.0",
+    "nodemon": "^2.0.6"
   }
 }
