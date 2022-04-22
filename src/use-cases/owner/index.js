@@ -1,11 +1,11 @@
 import makeAddOwner from './add-owner'
-import ownerDb from '../../data-access/owner'
+import ownerDb from '../../data-access'
 
-const addOwner = makeAddOwner({ ownerDb })
+const addOwner = makeAddOwner({ownerDb})
 
 const ownerService = Object.freeze({
-  addOwner,
+    addOwner,
 })
 
 export default ownerService
-export { addOwner}
+export {addOwner}

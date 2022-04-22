@@ -1,12 +1,12 @@
 export default function buildMakeOwner({Address}) {
     return function makeOwner({
-                                    address = Address.makeAddress(),
-                                    name,
-                                    role,
-                                    createdOn = Date.now(),
-                                    modifiedOn = Date.now(),
-                                    deleted = false,
-                                } = {}) {
+                                  address = Address.makeAddress(),
+                                  name,
+                                  role,
+                                  createdOn = Date.now(),
+                                  modifiedOn = Date.now(),
+                                  deleted = false,
+                              } = {}) {
         if (!Address.isValidAddress(address)) {
             throw new Error('Owner must have a valid address.')
         }
