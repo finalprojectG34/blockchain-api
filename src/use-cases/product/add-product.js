@@ -1,17 +1,17 @@
-// import makeProduct from '../../entities/product';
+import makeProduct from '../../entities/product';
 
 export default function makeAddProduct({productsDb}) {
     return async function addProduct(productInfo) {
-        // const product = makeProduct(productInfo)
+        const product = makeProduct(productInfo)
         return productsDb.insert({
-            address: "product.getAddress()",
-            // description: product.getDescription(),
-            // price: product.getPrice(),
-            // owner: product.getOwner(),
-            // createdOn: product.getCreatedOn(),
-            // modifiedOn: product.getModifiedOn(),
-            // deleted: product.isDeleted(),
-            // published: product.isPublished(),
+            address: product.getAddress(),
+            description: product.getDescription(),
+            price: product.getPrice(),
+            owner: product.getOwner(),
+            createdOn: product.getCreatedOn(),
+            modifiedOn: product.getModifiedOn(),
+            deleted: product.isDeleted(),
+            published: product.isPublished(),
         })
     }
 }

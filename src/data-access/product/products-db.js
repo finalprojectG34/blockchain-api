@@ -8,46 +8,33 @@ export default function makeProductsDb({makeDb}) {
         // update
     })
 
-    async function findAll({publishedOnly = true} = {}) {
-        // console.log(`Old Data value: ${await contract.methods.getMyData().call()}`)
-        // const db = await makeDb()
-        // const query = publishedOnly ? {published: true} : {}
-        // const result = await db.collection('comments').find(query)
-        // return (await result.toArray()).map(({_id: id, ...found}) => ({
-        //     id,
-        //     ...found
-        // }))
+    async function findAll() {
+        const res = await makeDb({privateKey: "Address"})
+
+        if (res) {
+            return res.getMyData().call()
+        } else {
+            console.log("Erororrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+        }
     }
 
     async function insert({address}) {
-        await makeDb({privateKey: "Address"}).catch((e)=>console.log(e))
+        try {
+            const res = await makeDb({privateKey: "Address"})
+            console.log(await makeDb({privateKey: "Address"}))
+            await res.setMyData(15).send({
+                from: "0x96D692De7f2Dd6C9E0fff13e9d6e9F7FB6cEbfcB",
+            }).then(va => {
+                console.log("Successuuuuuuu -->", va)
+            }).catch(reason => {
+                console.log("Error Reason ---->")
+                console.log(reason)
+            })
+        } catch (e) {
+            console.log("Erororrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+        }
 
-        // biconomy.onEvent(biconomy.READY, async () => {
-        //     console.log("initialized")
-        //     console.log("eziga", contract)
-        //
-        //     // const receipt = await contract.methods.setMyData(15).send({
-        //     //     from: address,
-        //     // }).then(va => {
-        //     //     console.log("Successuuuuuuu -->", va)
-        //     // }).catch(reason => {
-        //     //     console.log("Error Reason ---->")
-        //     //     console.log(reason)
-        //     // })
-        // }).onEvent(biconomy.ERROR, (error, message) => {
-        //     console.log("error happened here -------->: ", error, message)
-        // });
-
-
-        console.log("Done!")
         return {}
-        // console.log(address)
-        // const db = await makeDb()
-        // const result = await db
-        //     .collection('comments')
-        //     .insertOne({_id, ...commentInfo})
-        // const {_id: id, ...insertedInfo} = result.ops[0]
-        // return {id, ...insertedInfo}
     }
 
 }
