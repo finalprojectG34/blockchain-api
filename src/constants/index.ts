@@ -1,0 +1,2 @@
+export const BICONOMY_API_KEY_AVALANCHE = "EvDyAGHHS.ad1d3f25-6448-4797-9a26-2903caabe83f";
+export const MORALIS_URL_AVALANCHE = "https://speedy-nodes-nyc.moralis.io/0cfd86d7cc7a029dd95f5a57/avalanche/testnet";

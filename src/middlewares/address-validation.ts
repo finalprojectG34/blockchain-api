@@ -1,7 +1,9 @@
-const validateAddress = async (req, res, next) => {
+import { Request, Response, NextFunction } from "express";
+
+async function validateAddress (req: Request, _: Response, next:NextFunction) {
     try {
-        const unvalidated_address = req.headers.address
-        const unvalidated_private_key = req.headers.privateKey
+        // const unvalidated_address = req.headers.address
+        // const unvalidated_private_key = req.headers.privateKey
 
         Object.assign(req.headers, {
             address: null,
@@ -24,6 +26,6 @@ const validateAddress = async (req, res, next) => {
     } catch (error) {
         return Promise.reject(new Error("Error Happened!"));
     }
-};
+}
 
 export default validateAddress;

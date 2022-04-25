@@ -11,7 +11,7 @@ const ProductQuery = {
 };
 
 const ProductMutation = {
-    createProduct: ProductTC.getResolver("createProduct"),
+    // createProduct: ProductTC.getResolver("createProduct"),
 };
 
 export {ProductQuery, ProductMutation};
