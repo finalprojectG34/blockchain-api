@@ -1,5 +1,5 @@
-import OwnerEntity from "../entities/owner.entity";
-import OwnerRepositoryInterface from "./owner.repository.interface";
+import OwnerEntity from "../../entities/owner.entity";
+import OwnerRepositoryInterface from "../repository-interfaces/owner.repository.interface";
 
 export default class OwnerUseCases {
   constructor(private ownerRepository: OwnerRepositoryInterface) {}

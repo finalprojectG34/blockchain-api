@@ -1,4 +1,4 @@
-import OwnerEntity from "../entities/owner.entity";
+import OwnerEntity from "../../entities/owner.entity";
 
 export default interface OwnerRepositoryInterface {
     getOwnerByAddress(id: string): Promise<OwnerEntity | undefined>;

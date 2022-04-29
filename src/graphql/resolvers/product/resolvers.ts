@@ -1,8 +1,5 @@
-// import productService from "../../../use-cases/product";
-
 import productTC from "../../models/product";
-// import ProductUseCases from "../../../use-cases/product.user-cases";
-import {Resolver, ResolverResolveParams} from "graphql-compose";
+import {ContextType} from "../../types/type-defs";
 
 const getAllProducts = {
     name: "getAllProducts",
@@ -11,11 +8,10 @@ const getAllProducts = {
         newEmail: "String!",
         userId: "String!"
     },
-    resolve: async ():Promise<Resolver|undefined> => {
+    resolve: async ({context: {productUseCases}}: {context: ContextType}) => {
         try {
-            console.log("I am here")
-            // console.log({address})
-            // await productUseCases.getProductByAddress("address")
+            console.log("productUseCases")
+            console.log(productUseCases.getProductByAddress("address"))
             return undefined
         } catch (error) {
             return Promise.reject(error);
@@ -23,21 +19,21 @@ const getAllProducts = {
     },
 };
 
-// const createProduct = {
-//     name: "createProduct",
-//     type: "String",
-//     args: {},
-//     resolve: async () => {
-//         try {
-//             return null
-//             // return productService.addProduct({myPro: "hehe"})
-//         } catch (error) {
-//             return Promise.reject(error);
-//         }
-//     },
-// };
+const createProduct = {
+    name: "createProduct",
+    type: "String",
+    args: {},
+    resolve: () => {
+        try {
+            return null
+            // return productService.addProduct({myPro: "hehe"})
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+};
 
 export default [
-    // createProduct,
+    createProduct,
     getAllProducts,
 ]

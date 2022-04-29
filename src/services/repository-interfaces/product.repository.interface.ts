@@ -1,4 +1,4 @@
-import ProductEntity from "../entities/product.entity";
+import ProductEntity from "../../entities/product.entity";
 
 export default interface ProductRepositoryInterface {
     getProductByAddress(address: string): Promise<ProductEntity | undefined>;

@@ -1,5 +1,5 @@
-import ProductRepositoryInterface from "../use-cases/product.repository.interface";
-import ProductEntity from "../entities/product.entity";
+import ProductRepositoryInterface from "../repository-interfaces/product.repository.interface";
+import ProductEntity from "../../entities/product.entity";
 import {Contract} from "web3-eth-contract";
 
 export default class ProductRepository implements ProductRepositoryInterface {
@@ -7,9 +7,8 @@ export default class ProductRepository implements ProductRepositoryInterface {
 
     async getProductByAddress(address: string): Promise<ProductEntity | undefined> {
         // blockchain.getMyData
-        console.log("hello there")
-        // console.log(this.blockchain.methods)
-        // await this.blockchain.methods.getMyData(address).call()
+        console.log("await this.blockchain.methods.getMyNum()")
+        console.log(await this.blockchain.methods.getMyNum().call())
         return undefined
     }
 

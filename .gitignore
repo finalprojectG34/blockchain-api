@@ -14,7 +14,8 @@ node_modules/
 coverage
 
 # Transpiled files
-src/blockchain-contracts/build/
+blockchain-contracts/node_modules
+blockchain-contracts/node_modules/
 
 # VS Code
 .vscode

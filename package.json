@@ -32,6 +32,7 @@
     "@opengsn/provider": "^2.2.6",
     "@truffle/hdwallet-provider": "^2.0.7",
     "apollo-server-express": "^3.6.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "graphql": "^16.3.0",
@@ -39,6 +40,7 @@
     "web3": "^1.7.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.26",
     "jest": "^27.5.1",

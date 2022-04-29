@@ -1,5 +1,5 @@
-import ProductEntity from "../entities/product.entity";
-import ProductRepositoryInterface from "./product.repository.interface";
+import ProductEntity from "../../entities/product.entity";
+import ProductRepositoryInterface from "../repository-interfaces/product.repository.interface";
 
 export default class ProductUseCases {
     constructor(private productRepository: ProductRepositoryInterface) {
