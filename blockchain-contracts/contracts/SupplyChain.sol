@@ -19,19 +19,23 @@ contract SupplyChain {
     uint purchaseId;
 
     /*
-    Any registered user can sell and buy a product
+        Any registered user can sell and buy a product
     */
     struct User {
+        address id;
+        string mongoId;
         string name;
         string email;
-        address addr;
         string deliveryAddress;
         string role;
+        bool isCreated;
         uint createdAt;
         uint updatedAt;
-        bool isCreated;
     }
 
+    /*
+        Item fields
+    */
     struct Product {
         string productId;
         string productName;
@@ -41,12 +45,16 @@ contract SupplyChain {
         address owner;
         bool isAvailable;
         bool isCreated;
+        uint createdAt;
+        uint updatedAt;
     }
 
     struct OrdersPlaced {
         string productId;
         uint purchaseId;
         address orderedBy;
+        uint createdAt;
+        uint updatedAt;
     }
 
     struct SellerShipment {
@@ -57,13 +65,17 @@ contract SupplyChain {
         address orderedBy;
         bool isActive;
         bool isCanceled;
+        uint createdAt;
+        uint updatedAt;
     }
 
-    struct Orders {
+    struct UserOrders {
         string productId;
         string orderStatus;
         uint purchaseId;
         string shipmentStatus;
+        uint createdAt;
+        uint updatedAt;
     }
 
     struct History{
@@ -79,79 +91,119 @@ contract SupplyChain {
     mapping (address => OrdersPlaced[]) sellerOrders;
     mapping (address => mapping(uint => SellerShipment)) sellerShipments;
     mapping (address => uint[]) purchaseIds;
-    mapping (address => Orders[]) userOrders;
+    mapping (address => UserOrders[]) userOrders;
+    //Product Id mapped to an array of productHistories
     mapping (string => History[]) productHistories;
 
-    function userSignUp(string memory _name, string memory _email, string memory _deliveryAddress) public { //payable
-        require(!users[msg.sender].isCreated, "You are Already Registered");
+    function userSignUp(string memory _mongoId, string memory _name, string memory _email, string memory _deliveryAddress) public { //payable
+        require(!users[msg.sender].isCreated, "You are Already Registered!");
+        require(
+            !compareStrings(_mongoId, "") ||
+            !compareStrings(_name, "") ||
+            !compareStrings(_email, ""),
+            "Please fill in the required fields!"
+            );
 
         // owner.transfer(msg.value);
-        User memory user = users[msg.sender];
-        user.name = _name;
-        user.email = _email;
-        user.deliveryAddress = _deliveryAddress;
-        user.addr = msg.sender;
-        user.isCreated = true;
+        User memory user = User(
+            msg.sender,
+            _mongoId,
+            _name,
+            _email,
+            _deliveryAddress,
+            "User",
+            true,
+            block.timestamp,
+            block.timestamp
+        );
+
+        users[msg.sender] = user;
         allUsers.push(msg.sender);
     }
 
     function addProduct(string memory _productId, string memory _productName, string memory _category, uint _price, string memory _description) public {
-        require(users[msg.sender].isCreated, "You are not Registered as Seller");
-        require(users[msg.sender].isCreated, "You are not Registered as Seller"); //check user role
-        require(!products[_productId].isCreated, "Product With this Id is already Active. Use other UniqueId");
+        require(users[msg.sender].isCreated, "You are not Registered as Seller!");
+        // require(users[msg.sender].isCreated, "You are not Registered as Seller"); //check user role
+        require(!products[_productId].isCreated, "Product With this Id is already Active. Use other UniqueId!");
 
-        Product memory product = products[_productId];
-        product.productId = _productId;
-        product.productName = _productName;
-        product.Category = _category;
-        product.description = _description;
-        product.price = _price;
-        product.owner = msg.sender;
-        product.isAvailable = false;
-        product.isCreated = true;
+        Product memory product = Product(
+            _productId,
+            _productName,
+            _category,
+            _price,
+            _description,
+            msg.sender,
+            false,
+            true,
+            block.timestamp,
+            block.timestamp
+        );
+        
+        products[_productId] = product;
         allProducts.push(_productId);
     }
 
     function buyProduct(string memory _productId) public { //payable
-        require(users[msg.sender].isCreated, "You Must Be Registered to Buy");
-
+        require(users[msg.sender].isCreated, "You Must Be Registered to Buy!");
+        require(products[_productId].isCreated, "Item does not exist!");
+        require(products[_productId].isAvailable, "Item is not available for sell.");
+        require(products[_productId].owner != msg.sender, "You Can not buy your own Item!");
         // products[_productId].seller.transfer(msg.value);
 
         purchaseId = id++;
 
-        OrdersPlaced memory ord = OrdersPlaced(_productId, purchaseId, msg.sender);
+        OrdersPlaced memory ord = OrdersPlaced(_productId, purchaseId, msg.sender,  block.timestamp, block.timestamp);
         sellerOrders[products[_productId].owner].push(ord);
 
-        SellerShipment memory sellerShipment = sellerShipments[products[_productId].owner][purchaseId];
-        sellerShipment.shipmentStatus = "initial shipment status";
-        sellerShipment.productId = _productId;
-        sellerShipment.orderedBy = msg.sender;
-        sellerShipment.purchaseId = purchaseId;
-        sellerShipment.deliveryAddress = users[msg.sender].deliveryAddress;
-        sellerShipment.isActive = true;
+        SellerShipment memory sellerShipment = SellerShipment(
+            _productId,
+            purchaseId,
+            "initial shipment status",
+            users[msg.sender].deliveryAddress,
+            msg.sender,
+            true,
+            false,
+            block.timestamp,
+            block.timestamp
+        );
+        sellerShipments[products[_productId].owner][purchaseId] = sellerShipment;
+
         purchaseIds[products[_productId].owner].push(purchaseId);
 
-        Orders memory order = Orders(_productId, "Order Placed With Seller", purchaseId, sellerShipment.shipmentStatus);
+        UserOrders memory order = UserOrders(
+            _productId, 
+            "Order Placed With Seller", 
+            purchaseId, 
+            sellerShipment.shipmentStatus, 
+            block.timestamp, 
+            block.timestamp
+        );
         userOrders[msg.sender].push(order);
     }
 
-    function cancelOrder(string memory _productId, uint _purchaseId) public payable {
+    function cancelOrder(string memory _productId, uint _purchaseId) public { //payable
         SellerShipment memory sellerShipment = sellerShipments[products[_productId].owner][_purchaseId];
-
-        require(sellerShipment.orderedBy == msg.sender, "You are not Authorized to This Product PurchaseId!");
-        require(sellerShipment.isActive, "You Already Canceled This order!");
+        address owner = products[_productId].owner;
+        require(!(sellerShipment.orderedBy == msg.sender)||!(owner == msg.sender), "You are not Authorized to cancel this Order!");
+        require(!sellerShipment.isActive, "You Already Canceled This order!");
 
         sellerShipment.shipmentStatus = "Order Canceled By Buyer, Payment will Be  Refunded";
         sellerShipment.isCanceled = true;
         sellerShipment.isActive = false;
     }
 
+    function changeProductAvalability(string memory productId, bool _available) public {
+        require(products[productId].isCreated, "Product does not exist!");
+        require(products[productId].owner == msg.sender, "Access denied!");
+        products[productId].isAvailable = _available;
+    }
+
     function updateShipment(uint _purchaseId, string memory _newShipmentStatus) public {
-        require(sellerShipments[msg.sender][_purchaseId].isActive, "Order is either inActive or cancelled");
+        require(!sellerShipments[msg.sender][_purchaseId].isActive, "Order is either inActive or cancelled");
         sellerShipments[msg.sender][_purchaseId].shipmentStatus = _newShipmentStatus;
 
         //if status id delivered
-        if (compareStrings(_newShipmentStatus,"delivered")) {
+        if (compareStrings(_newShipmentStatus, "delivered")) {
             string memory product_id = sellerShipments[msg.sender][_purchaseId].productId;
             products[product_id].owner = sellerShipments[msg.sender][_purchaseId].orderedBy;
             History memory history = History(msg.sender, block.timestamp);
@@ -171,7 +223,7 @@ contract SupplyChain {
         return productHistories[_productId];
     }
 
-    function getUserOrders() public view returns(Orders[] memory) {
+    function getUserOrders() public view returns(UserOrders[] memory) {
         return userOrders[msg.sender];
     }
 
@@ -214,7 +266,39 @@ contract SupplyChain {
         );
     }
 
+    struct Pro {
+        string id;
+        string name;
+        address owner;
+    }
+    function getAllProducts() public view returns (Pro[] memory){
+        Pro[] memory res = new Pro[](allProducts.length);
+        for(uint i = 0; i < allProducts.length; i++) {
+            string memory proid = products[allProducts[i]].productId;
+            string memory name = products[allProducts[i]].productName;
+            address proowner = products[allProducts[i]].owner;
+            res[i] = Pro(proid, name, proowner);
+        }
+        return res;
+    }
+
+    struct Usr {
+        string mongoId;
+        string name;
+        address id;
+    }
+    function getAllUser() public view returns (Usr[] memory){
+        Usr[] memory res = new Usr[](allUsers.length);
+        for(uint i = 0; i < allUsers.length; i++) {
+            string memory mongoId = users[allUsers[i]].mongoId;
+            string memory name = users[allUsers[i]].name;
+            address uid = users[allUsers[i]].id;
+            res[i] = Usr(mongoId, name, uid);
+        }
+        return res;
+    }
+
     function compareStrings(string memory a, string memory b) private pure returns (bool) {
-        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
+        return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
 }
