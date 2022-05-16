@@ -3,13 +3,13 @@ pragma solidity ^0.8.0;
 
 contract SupplyChain {
     /*
-    The owner of the contract is the deployer
+        The owner of the contract is the deployer
     */
     address public _owner;
     // address payable public owner;
 
     /*
-    Set owner of the contract to the deployer
+        Set owner of the contract to the deployer
     */
     constructor() {
         _owner = msg.sender;
@@ -95,14 +95,19 @@ contract SupplyChain {
     //Product Id mapped to an array of productHistories
     mapping (string => History[]) productHistories;
 
-    function userSignUp(string memory _mongoId, string memory _name, string memory _email, string memory _deliveryAddress) public { //payable
+    function userSignUp(
+        string memory _mongoId,
+        string memory _name,
+        string memory _email,
+        string memory _deliveryAddress
+    ) public returns (User memory) { //payable
         require(!users[msg.sender].isCreated, "You are Already Registered!");
         require(
             !compareStrings(_mongoId, "") ||
-            !compareStrings(_name, "") ||
-            !compareStrings(_email, ""),
+        !compareStrings(_name, "") ||
+        !compareStrings(_email, ""),
             "Please fill in the required fields!"
-            );
+        );
 
         // owner.transfer(msg.value);
         User memory user = User(
@@ -119,9 +124,16 @@ contract SupplyChain {
 
         users[msg.sender] = user;
         allUsers.push(msg.sender);
+        return user;
     }
 
-    function addProduct(string memory _productId, string memory _productName, string memory _category, uint _price, string memory _description) public {
+    function addProduct(
+        string memory _productId,
+        string memory _productName,
+        string memory _category,
+        uint _price,
+        string memory _description
+    ) public returns (Product memory) {
         require(users[msg.sender].isCreated, "You are not Registered as Seller!");
         // require(users[msg.sender].isCreated, "You are not Registered as Seller"); //check user role
         require(!products[_productId].isCreated, "Product With this Id is already Active. Use other UniqueId!");
@@ -133,14 +145,15 @@ contract SupplyChain {
             _price,
             _description,
             msg.sender,
-            false,
+            true,
             true,
             block.timestamp,
             block.timestamp
         );
-        
+
         products[_productId] = product;
         allProducts.push(_productId);
+        return product;
     }
 
     function buyProduct(string memory _productId) public { //payable
@@ -171,11 +184,11 @@ contract SupplyChain {
         purchaseIds[products[_productId].owner].push(purchaseId);
 
         UserOrders memory order = UserOrders(
-            _productId, 
-            "Order Placed With Seller", 
-            purchaseId, 
-            sellerShipment.shipmentStatus, 
-            block.timestamp, 
+            _productId,
+            "Order Placed With Seller",
+            purchaseId,
+            sellerShipment.shipmentStatus,
+            block.timestamp,
             block.timestamp
         );
         userOrders[msg.sender].push(order);
@@ -192,14 +205,14 @@ contract SupplyChain {
         sellerShipment.isActive = false;
     }
 
-    function changeProductAvalability(string memory productId, bool _available) public {
+    function changeProductAvailability(string memory productId, bool _available) public {
         require(products[productId].isCreated, "Product does not exist!");
         require(products[productId].owner == msg.sender, "Access denied!");
         products[productId].isAvailable = _available;
     }
 
     function updateShipment(uint _purchaseId, string memory _newShipmentStatus) public {
-        require(!sellerShipments[msg.sender][_purchaseId].isActive, "Order is either inActive or cancelled");
+        require(sellerShipments[msg.sender][_purchaseId].isActive, "Order is either inActive or cancelled");
         sellerShipments[msg.sender][_purchaseId].shipmentStatus = _newShipmentStatus;
 
         //if status id delivered
@@ -282,6 +295,11 @@ contract SupplyChain {
         return res;
     }
 
+    function getProductById(string memory _productId) public view returns (Product memory){
+        Product memory res = products[_productId];
+        return res;
+    }
+
     struct Usr {
         string mongoId;
         string name;
@@ -295,6 +313,11 @@ contract SupplyChain {
             address uid = users[allUsers[i]].id;
             res[i] = Usr(mongoId, name, uid);
         }
+        return res;
+    }
+
+    function getUserByAddress(address _userId) public view returns (User memory){
+        User memory res = users[_userId];
         return res;
     }
 

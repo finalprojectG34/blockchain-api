@@ -1,5 +1,5 @@
 {
-  "name": "Blockchain-Contract",
+  "name": "blockchain-contract",
   "version": "0.0.2",
   "description": "Make API-Endpoints for Ethereum BlockChain",
   "scripts": {
