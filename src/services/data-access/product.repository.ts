@@ -15,7 +15,7 @@ export default class ProductRepository implements ProductRepositoryInterface {
     async createProduct(data: ProductEntity, address: string): Promise<ProductEntity | undefined> {
         // blockchain.addNewData
         try {
-            // await this.blockchain.setMyData(data).send({from: address})
+            await this.blockchain.methods.userSignUp(data).send({from: address})
             return undefined
         } catch (e) {
             return Promise.reject(e)
