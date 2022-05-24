@@ -17,6 +17,7 @@ contract SupplyChain {
 
     uint id;
     uint purchaseId;
+    uint productId;
 
     /*
         Any registered user can sell and buy a product
@@ -44,7 +45,8 @@ contract SupplyChain {
         Item fields
     */
     struct Product {
-        string productId;
+        uint productId;
+        string mongoId;
         string productName;
         string category;
         uint price;
@@ -56,7 +58,8 @@ contract SupplyChain {
         uint updatedAt;
     }
     struct ProductView {
-        string productId;
+        uint productId;
+        string mongoId;
         string name;
         uint price;
         string category;
@@ -66,7 +69,8 @@ contract SupplyChain {
 
     struct History{
         address prevOwner;
-        string productId;
+        uint productId;
+        string mongoId;
         string productName;
         string category;
         uint price;
@@ -76,7 +80,8 @@ contract SupplyChain {
 
     struct OrderShipment {
         uint purchaseId;
-        string productId;
+        uint productId;
+        string mongoId;
         string shipmentStatus;
         string deliveryAddress;
         address orderedBy;
@@ -95,9 +100,10 @@ contract SupplyChain {
 
     mapping (address => User) users;
     address[] public allUsers;
-    mapping (string => Product) products;
+    mapping (uint => Product) products;
+    mapping (address => uint[]) ownerProducts;
     //Product Id mapped to an array of productHistories
-    mapping (string => History[]) productHistories;
+    mapping (uint => History[]) productHistories;
     string[] public allProducts;
     mapping (uint => OrderShipment) orderShipments;
     mapping (address => uint[]) userPurchaseIds;
@@ -154,63 +160,84 @@ contract SupplyChain {
     }
 
     function addProduct(
-        string memory _productId,
+        string memory _mongoId,
         string memory _productName,
         string memory _category,
         uint _price,
-        string memory _description
+        string memory _description,
+        uint _instanceNumber
     ) public {
         require(users[msg.sender].isCreated, "You are not Registered as Seller!");
         // require(users[msg.sender].isCreated, "You are not Registered as Seller"); //check user role
-        require(!products[_productId].isCreated, "Product With this Id is already Active. Use other UniqueId!");
 
-        Product memory product = Product(
-            _productId,
-            _productName,
-            _category,
-            _price,
-            _description,
-            msg.sender,
-            true,
-            true,
-            block.timestamp,
-            block.timestamp
-        );
+        for (uint i = 0; i < _instanceNumber; i++){
+            Product memory product = Product(
+                productId,
+                _mongoId,
+                _productName,
+                _category,
+                _price,
+                _description,
+                msg.sender,
+                true,
+                true,
+                block.timestamp,
+                block.timestamp
+            );
 
-        products[_productId] = product;
-        allProducts.push(_productId);
+            products[productId] = product;
+            ownerProducts[msg.sender].push(productId);
+            productId += 1;
+        }
     }
 
-    function getProductById(string memory _productId) public view returns (Product memory){
+    function getProductById(uint _productId) public view returns (Product memory){
         Product memory res = products[_productId];
         return res;
     }
 
     function getAllProducts() public view returns (ProductView[] memory){
-        ProductView[] memory res = new ProductView[](allProducts.length);
-        for(uint i = 0; i < allProducts.length; i++) {
-            string memory productId = products[allProducts[i]].productId;
-            string memory name = products[allProducts[i]].productName;
-            uint price = products[allProducts[i]].price;
-            string memory category = products[allProducts[i]].category;
-            string memory description = products[allProducts[i]].description;
-            address productOwner = products[allProducts[i]].owner;
-            res[i] = ProductView(productId, name, price, category, description, productOwner);
+        ProductView[] memory res = new ProductView[](productId);
+        for(uint i = 0; i < productId; i++) {
+            string memory mongoId = products[i].mongoId;
+            uint product_id = products[i].productId;
+            string memory name = products[i].productName;
+            uint price = products[i].price;
+            string memory category = products[i].category;
+            string memory description = products[i].description;
+            address productOwner = products[i].owner;
+            res[i] = ProductView(product_id, mongoId, name, price, category, description, productOwner);
         }
         return res;
     }
 
-    function getProductHistory(string memory _productId) public view returns(History[] memory) {
+    function getUserProducts() public view returns (ProductView[] memory){
+        uint[] memory op = ownerProducts[msg.sender];
+        ProductView[] memory res = new ProductView[](op.length);
+        for(uint i = 0; i < op.length; i++) {
+            string memory mongoId = products[op[i]].mongoId;
+            uint product_id = products[op[i]].productId;
+            string memory name = products[op[i]].productName;
+            uint price = products[op[i]].price;
+            string memory category = products[op[i]].category;
+            string memory description = products[op[i]].description;
+            address productOwner = products[op[i]].owner;
+            res[i] = ProductView(product_id, mongoId, name, price, category, description, productOwner);
+        }
+        return res;
+    }
+
+    function getProductHistory(uint _productId) public view returns(History[] memory) {
         return productHistories[_productId];
     }
 
-    function changeProductAvailability(string memory productId, bool _available) public {
-        require(products[productId].isCreated, "Product does not exist!");
-        require(products[productId].owner == msg.sender, "Access denied!");
-        products[productId].isAvailable = _available;
+    function changeProductAvailability(uint _productId, bool _available) public {
+        require(products[_productId].isCreated, "Product does not exist!");
+        require(products[_productId].owner == msg.sender, "Access denied!");
+        products[_productId].isAvailable = _available;
     }
 
-    function buyProduct(string memory _productId) public { //payable
+    function buyProduct(uint _productId) public { //payable
         require(users[msg.sender].isCreated, "You Must Be Registered to Buy!");
         require(products[_productId].isCreated, "Item does not exist!");
         require(products[_productId].isAvailable, "Item is not available for sell.");
@@ -222,6 +249,7 @@ contract SupplyChain {
         OrderShipment memory order = OrderShipment(
             purchaseId,
             _productId,
+            products[_productId].mongoId,
             "initial shipment status",
             users[msg.sender].deliveryAddress,
             msg.sender,
@@ -289,16 +317,16 @@ contract SupplyChain {
         require(orderShipments[_purchaseId].isActive, "Order is either inActive or cancelled");
 
         OrderShipment memory shipment = orderShipments[_purchaseId];
-        shipment.shipmentStatus = _newShipmentStatus;
+        orderShipments[_purchaseId].shipmentStatus = _newShipmentStatus;
 
         //if status id delivered
         if (compareStrings(_newShipmentStatus, "delivered")) {
-            string memory product_id = shipment.productId;
+            uint product_id = shipment.productId;
             products[product_id].owner = shipment.orderedBy;
 
             Product memory product = products[product_id];
 
-            string memory productId = product.productId;
+            string memory mongoId = product.mongoId;
             string memory productName = product.productName;
             string memory category = product.category;
             uint price = product.price;
@@ -306,7 +334,8 @@ contract SupplyChain {
 
             History memory history = History(
                 msg.sender,
-                productId,
+                product_id,
+                mongoId,
                 productName,
                 category,
                 price,
@@ -324,6 +353,8 @@ contract SupplyChain {
             "Purchase Id does not exist"
         );
         require(!orderShipments[_purchaseId].isActive, "You Already Canceled This order!");
+        require(!compareStrings(orderShipments[_purchaseId].shipmentStatus, "initial shipment status"),
+            "You Already Canceled This order!");
 
         orderShipments[_purchaseId].isActive = false;
     }
