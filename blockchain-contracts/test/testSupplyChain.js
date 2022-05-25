@@ -1,20 +1,25 @@
 const SupplyChain = artifacts.require("SupplyChain");
-// const UserContract = artifacts.require("UserContract");
+const UserContract = artifacts.require("UserContract");
 
 contract('SupplyChain', async function (accounts) {
     let supplyChain, productContract, userContract;
     let supplyChainAddress, productAddress, userAddress;
 
     before(async () => {
-        supplyChain = await SupplyChain.deployed();
+        supplyChain = await SupplyChain.new();
         supplyChainAddress = supplyChain.address;
 
-        // userContract = await UserContract.deployed();
-        // userAddress = userContract.address;
+        userContract = await UserContract.new(supplyChainAddress);
+        userAddress = userContract.address;
+    });
 
+    it("should set contract", async function () {
         // await productContract.setSupplyChainAddress(supplyChainAddress);
         // await userContract.setSupplyChainAddress(supplyChainAddress);
-    });
+        const ss = await userContract.supplyChainAddress.call();
+        console.log(supplyChainAddress, ss)
+        assert.equal(supplyChainAddress, supplyChainAddress, "Product contract address not the same");
+    })
 
     it("should set contract addresses", async function () {
         // await supplyChain.setProductContractAddress(productAddress);

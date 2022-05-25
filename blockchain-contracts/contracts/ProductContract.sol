@@ -14,8 +14,9 @@ contract ProductContract {
     /*
         Set owner of the contract to the deployer
     */
-    constructor() {
+    constructor(address add) {
         _owner = msg.sender;
+        supplyChainAddress = add;
     }
 
     function setSupplyChainAddress(address add) external {
