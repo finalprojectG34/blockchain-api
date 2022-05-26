@@ -68,7 +68,6 @@ contract UserContract {
             "Please fill in the required fields!"
         );
 
-        // owner.transfer(msg.value);
         User memory user = User(
             userAddress,
             _mongoId,

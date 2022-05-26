@@ -1,84 +1,110 @@
 const SupplyChain = artifacts.require("SupplyChain");
+const ProductContract = artifacts.require("ProductContract");
 const UserContract = artifacts.require("UserContract");
 
 contract('SupplyChain', async function (accounts) {
     let supplyChain, productContract, userContract;
     let supplyChainAddress, productAddress, userAddress;
+    let ownerAccount, sellerAccount, deliveryAccount, customerAccount;
 
     before(async () => {
         supplyChain = await SupplyChain.new();
         supplyChainAddress = supplyChain.address;
 
+        productContract = await ProductContract.new(supplyChainAddress);
+        productAddress = productContract.address;
+
         userContract = await UserContract.new(supplyChainAddress);
         userAddress = userContract.address;
+
+        ownerAccount = accounts[0];
+        sellerAccount = accounts[1];
+        deliveryAccount = accounts[2];
+        customerAccount = accounts[3];
     });
 
-    it("should set contract", async function () {
-        // await productContract.setSupplyChainAddress(supplyChainAddress);
-        // await userContract.setSupplyChainAddress(supplyChainAddress);
-        const ss = await userContract.supplyChainAddress.call();
-        console.log(supplyChainAddress, ss)
-        assert.equal(supplyChainAddress, supplyChainAddress, "Product contract address not the same");
-    })
+    it("Only owner can set contract address", async function () {
+        await supplyChain.setProductContractAddress(productAddress, {from: ownerAccount});
+        await supplyChain.setUserContractAddress(userAddress, {from: ownerAccount});
+        const productContractAddress = await supplyChain.productContractAddress.call();
+        const userContractAddress = await supplyChain.userContractAddress.call();
 
-    it("should set contract addresses", async function () {
-        // await supplyChain.setProductContractAddress(productAddress);
-        // await supplyChain.setUserContractAddress(userAddress);
-        console.log("supplyChain.address", supplyChain.address)
-        const data = await supplyChain.kebe("userAddress");
-        assert.equal("productAddress", "productAddress", "Product contract address not the same");
-        // assert.equal(productAddress, supplyChain.productContractAddress, "Product contract address not the same");
-        // assert.equal(userAddress, supplyChain.userContractAddress, "User contract address not the same");
-    })
+        assert.equal(productAddress, productContractAddress, "Supply chain address in product contract not the same");
+        assert.equal(userAddress, userContractAddress, "Supply chain address in user contract not the same");
+    });
 
-    // it("should create a user", async function () {
-    //     console.log("supplyChain.address", supplyChain.address);
-        // console.log("productContract.address", productContract.address, productContract.supplyChainAddress);
-        // console.log("userContract.address", userContract.address, userContract.supplyChainAddress);
-        // const _mongoId = "user1";
-        // const _name = "Nati";
-        // const _email = "nathnael@gmail.com";
-        // const _deliveryAddress = "addis ababa";
-        // await supplyChain.userSignUp(_mongoId, _name, _email, _deliveryAddress);
-        // const users = await supplyChain.getAllUser();
-        //
-        // assert.equal("Mongo Id not the same", "Mongo Id not the same");
-        // assert.equal(users[0].mongoId, _mongoId, "Mongo Id not the same");
-        // assert.equal(users[0].name, _name, "_name not the same");
-        // assert.equal(users[0].email, _email, "_email not the same");
-        // assert.equal(users[0].deliveryAddress, _deliveryAddress, "_deliveryAddress not the same");
-    // });
-    //
-    // it("should return a user by address", async function () {
-    //     const address = "0x2f6db7d60f45Ba5021a6b449e540cC614EDf0667";
-    //     const user = await supplyChain.getUserByAddress(address);
-    //
-    //     assert.equal(user.id, address, "address not the same");
-    // });
-    //
-    // it("should return all users", async function () {
-    //     const users = await supplyChain.getAllUser();
-    //
-    //     assert.equal(users.length, 1, "length is not equal");
-    // });
-    //
-    // it("should create an item correctly", async function () {
-    //     const _productId = "item1";
-    //     const _productName = "earbuds";
-    //     const _category = "accessory";
-    //     const _price = 50;
-    //     const _description = "best earbuds";
-    //
-    //     await supplyChain.addProduct(_productId, _productName, _category, _price, _description);
-    //     const product = await supplyChain.getProductById(_productId);
-    //
-    //     assert.equal(product.productId, _productId, "_productId not the same");
-    //     assert.equal(product.productName, _productName, "_productName not the same");
-    //     assert.equal(product.category, _category, "_category not the same");
-    //     assert.equal(product.price, _price, "_price not the same");
-    //     assert.equal(product.description, _description, "_description not the same");
-    // });
-    //
+    it("should not set contract address", async function () {
+        await supplyChain.setProductContractAddress(userAddress, {from: sellerAccount})
+            .then(() => {}).catch(() => {});
+        await supplyChain.setUserContractAddress(productAddress, {from: customerAccount})
+            .then(() => {}).catch(() => {});
+        const productContractAddress = await supplyChain.productContractAddress.call();
+        const userContractAddress = await supplyChain.userContractAddress.call();
+
+        assert.equal(productAddress, productContractAddress, "Supply chain address in product contract not the same");
+        assert.equal(userAddress, userContractAddress, "Supply chain address in user contract not the same");
+    });
+
+    it("should register all users", async function () {
+        //seller registration
+        await supplyChain.userSignUp(
+            "user1",
+            "Nathnael",
+            "Nati@gmail.com",
+            "Almbank ayertena",
+            "SELLER",
+            {from: sellerAccount});
+        const seller = await supplyChain.getUserByAddress(sellerAccount);
+
+        //delivery registration
+        await supplyChain.userSignUp(
+            "user2",
+            "Biruk",
+            "bura@gmail.com",
+            "Jemo",
+            "DELIVERY",
+            {from: deliveryAccount});
+        const delivery = await supplyChain.getUserByAddress(deliveryAccount);
+
+        //customer registration
+        await supplyChain.userSignUp(
+            "user3",
+            "Moti",
+            "moti@gmail.com",
+            "Bethel",
+            "CUSTOMER",
+            {from: customerAccount});
+        const customer = await supplyChain.getUserByAddress(customerAccount);
+
+        assert.equal("Nathnael", seller.name, "Seller user not registered correctly");
+        assert.equal("Biruk", delivery.name, "Delivery user not registered correctly");
+        assert.equal("Moti", customer.name, "Customer user not registered correctly");
+    });
+
+    it("should return all users", async function () {
+        const users = await supplyChain.getAllUser();
+
+        assert.equal(users.length, 3, "length is not equal");
+    });
+
+    it("should create an item correctly", async function () {
+        const _productId = "item1";
+        const _productName = "earbuds";
+        const _category = "accessory";
+        const _price = 50;
+        const _description = "best earbuds";
+        const _instanceNumber = 2;
+
+        await supplyChain.addProduct(_productId, _productName, _category, _price, _description, _instanceNumber, {from: sellerAccount});
+        const product = await supplyChain.getProductById(_productId);
+
+        assert.equal(product.productId, _productId, "_productId not the same");
+        assert.equal(product.productName, _productName, "_productName not the same");
+        assert.equal(product.category, _category, "_category not the same");
+        assert.equal(product.price, _price, "_price not the same");
+        assert.equal(product.description, _description, "_description not the same");
+    });
+
     // it("should get a product by product id", async function () {
     //     const _productId = "item1";
     //     const product = await supplyChain.getProductById(_productId);

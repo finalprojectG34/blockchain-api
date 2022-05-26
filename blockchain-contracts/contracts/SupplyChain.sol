@@ -31,15 +31,13 @@ contract SupplyChain {
     function setProductContractAddress(address add) external {
         require(msg.sender == _owner, "Unauthorized access!");
         product = ProductContract(add);
-    }
-
-    function kebe(string memory h) public returns (string memory){
-        return h;
+        productContractAddress = add;
     }
 
     function setUserContractAddress(address add) external {
         require(msg.sender == _owner, "Unauthorized access!");
         user = UserContract(add);
+        userContractAddress = add;
     }
 
     function userSignUp(
@@ -48,7 +46,7 @@ contract SupplyChain {
         string memory _email,
         string memory _deliveryAddress,
         string memory _role
-    ) public { //payable
+    ) public {//payable
         user.userSignUp(
             _mongoId,
             _name,
@@ -57,6 +55,8 @@ contract SupplyChain {
             _role,
             msg.sender
         );
+        //transfer some balance to the registered account
+        //        _owner.transfer(10);
     }
 
     function getUserByAddress(address _userId) public view returns (UserContract.User memory){
@@ -89,8 +89,8 @@ contract SupplyChain {
         );
     }
 
-    function getProductById(uint _productId) public view returns (ProductContract.Product memory){
-        return product.getProductById(_productId);
+    function getSingleProductById(uint _productId) public view returns (ProductContract.Product memory){
+        return product.getSingleProductById(_productId);
     }
 
     function getAllProducts() public view returns (ProductContract.ProductView[] memory){
@@ -101,7 +101,7 @@ contract SupplyChain {
         return product.getUserProducts(msg.sender);
     }
 
-    function getProductHistory(uint _productId) public view returns(ProductContract.History[] memory) {
+    function getProductHistory(uint _productId) public view returns (ProductContract.History[] memory) {
         return product.getProductHistory(_productId);
     }
 
@@ -109,16 +109,16 @@ contract SupplyChain {
         return product.changeProductAvailability(_productId, _available, msg.sender);
     }
 
-    function buyProduct(uint _productId) public { //payable
+    function buyProduct(uint _productId) public {//payable
         require(user.getUserByAddress(msg.sender).isCreated, "You Must Be Registered to Buy!");
         product.buyProduct(_productId, msg.sender, user.getUserByAddress(msg.sender).deliveryAddress);
     }
 
-    function getUserOrders() public view returns(ProductContract.OrderShipment[] memory) {
+    function getUserOrders() public view returns (ProductContract.OrderShipment[] memory) {
         return product.getUserOrders(msg.sender);
     }
 
-    function getUserOrderDetail (uint _purchaseId) public view returns (ProductContract.OrderShipment memory) {
+    function getUserOrderDetail(uint _purchaseId) public view returns (ProductContract.OrderShipment memory) {
         return product.getUserOrderDetail(_purchaseId, msg.sender);
     }
 
@@ -126,7 +126,7 @@ contract SupplyChain {
         return product.getSellerOrders(msg.sender);
     }
 
-    function getSellerOrderDetail (uint _purchaseId) public view returns (ProductContract.OrderShipment memory) {
+    function getSellerOrderDetail(uint _purchaseId) public view returns (ProductContract.OrderShipment memory) {
         return product.getSellerOrderDetail(_purchaseId, msg.sender);
     }
 
@@ -149,7 +149,7 @@ contract SupplyChain {
         product.confirmUserOrder(_purchaseId, msg.sender);
     }
 
-    function cancelOrder(uint _purchaseId) public { //payable
+    function cancelOrder(uint _purchaseId) public {//payable
         product.cancelOrder(_purchaseId, msg.sender);
     }
 

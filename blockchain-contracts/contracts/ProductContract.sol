@@ -129,7 +129,7 @@ contract ProductContract {
         }
     }
 
-    function getProductById(uint _productId) external view returns (Product memory){
+    function getSingleProductById(uint _productId) external view returns (Product memory){
         Product memory res = products[_productId];
         return res;
     }
